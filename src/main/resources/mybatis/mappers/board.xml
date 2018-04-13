@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+	
+	<resultMap type="BoardVo" id="boardmap">
+		<id column="no" property="no"/>
+		<result column="title" property="title"/>
+		<result column="content" property="content"/>
+		<result column="regdate" property="regdate"/>
+		<result column="hits" property="hits"/>
+		<result column="group_no" property="groupNo"/>
+		<result column="order_no" property="orderNo"/>
+		<result column="depth" property="depth"/>
+		<result column="is_delete" property="isDelete"/>
+		
+		<association javaType="UserVo" property="userVo">
+			<id column="user_no" property="no"/>
+			<result column="name" property="name"/>
+			<result column="email" property="email"/>
+			<result column="gender" property="gender"/>
+			<result column="join_date" property="joinDate"/>
+		</association>
+	</resultMap>
+	
+	<select id="countData" parameterType="map" resultType="int">
+		<![CDATA[
+			select count(no) from board
+		]]>
+		<choose>
+			<when test='keyword != null and keyword != ""'>
+				<![CDATA[
+					where (title like concat('%', #{keyword }, '%') 
+							or content like concat('%', #{keyword }, '%'))
+					and is_delete = 0
+				]]>
+			</when>
+			<otherwise>
+				<![CDATA[
+					where is_delete = 0
+				]]>
+			</otherwise>
+		</choose>
+
+	</select>
+	
+	<select id="getList" parameterType="map" resultType="boardvo">
+		<![CDATA[
+			select a.no, a.title, a.user_no, b.name, a.hits, a.regdate, a.is_delete, a.depth 
+			from board a, users b
+			where a.user_no = b.no
+		]]>
+		<if test='keyword != null and keyword != ""'>
+			<![CDATA[
+				and (title like concat('%', #{keyword }, '%') 
+						or content like concat('%', #{keyword }, '%'))
+			]]>
+		</if>
+		<![CDATA[
+			and a.is_delete = 0
+			order by group_no desc, order_no asc, a.regdate desc
+			limit #{page.startData }, #{page.dataPerPage }
+		]]>
+	</select>
+	
+	<update id="updatehits" parameterType="int">
+		<![CDATA[
+			update board
+			set hits = hits+1
+			where no = #{no}
+		]]>
+	</update>
+	
+	<select id="getByNo" parameterType="int" resultMap="boardmap">
+		<![CDATA[
+			select a.no, a.title, a.content, a.user_no, b.name, a.hits,
+					a.regdate, a.group_no, a.order_no, a.depth, a.is_delete
+			from board a, users b
+			where a.no = #{no}
+			and a.user_no = b.no
+		]]>
+	</select>
+	
+	<update id="updateorder" parameterType="map">
+		<![CDATA[
+			update board
+			set order_no = order_no+1
+			where group_no = #{groupNo }
+			and order_no > #{orderNo}
+		]]>
+	</update>
+	
+	<insert id="insert" parameterType="boardvo">
+		<![CDATA[
+			insert into board
+			select
+				null, #{title }, #{content}, now(), 0,
+				if(#{groupNo }=0, ifnull(max(group_no)+1, 1), #{groupNo}),
+				if(#{orderNo }=0, 1, #{orderNo}+1),
+				if(#{depth }=-1, 0, #{depth }+1), #{userVo.no }, 0
+			from board
+		]]>
+	</insert>
+	
+	<update id="update" parameterType="boardvo">
+		<![CDATA[
+			update board
+			set title = #{title }, content = #{content }
+			where no = #{no }
+		]]>
+	</update>
+	
+	<update id="delete" parameterType="long">
+		<![CDATA[
+			update board set is_delete = true where no = #{no}
+		]]>
+	</update>
+</mapper>

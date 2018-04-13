@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+
+	<!-- validator, conversionService, messageConverter를 자동으로 등록 -->
+	<mvc:annotation-driven>
+		<!-- Message Converter -->
+		<mvc:message-converters>
+			<!-- String -->
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>text/html; charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+			<!-- 객체용 -->
+			<bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+				<property name="supportedMediaTypes">
+					<list>
+						<value>application/json; charset=UTF-8</value>
+					</list>
+				</property>
+			</bean>
+
+		</mvc:message-converters>
+		
+     <!-- argument resolver -->
+     	<mvc:argument-resolvers>
+	 		<bean class="com.cafe24.security.AuthUserHandlerMethodArgumentResolver"/>           
+     	</mvc:argument-resolvers>
+	</mvc:annotation-driven>
+	
+	<!-- Interceptors -->
+	<mvc:interceptors>
+		<!-- <mvc:interceptor>
+			<mvc:mapping path="/user/**" /> 
+			<bean class="com.cafe24.mysite.interceptor.MyInterceptor2" />
+		</mvc:interceptor> -->
+		<mvc:interceptor>
+			<mvc:mapping path="/user/authUser" /> 
+			<bean class="com.cafe24.security.AuthLoginInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/user/logout" /> 
+			<bean class="com.cafe24.security.AuthLogoutInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/**" />
+			<mvc:exclude-mapping path="/main"/> 
+			<mvc:exclude-mapping path="/user/join"/> 
+			<mvc:exclude-mapping path="/user/login"/> 
+			<mvc:exclude-mapping path="/user/authUser"/> 
+			<mvc:exclude-mapping path="/user/logout"/> 
+			<mvc:exclude-mapping path="/assets/**"/> 
+			<bean class="com.cafe24.security.AuthInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+	<!-- 서블릿 컨테이너의 디폴트 서블릿 위임 핸들러 (css 같은 정적 자원에 대한 url 처리) -->
+	<mvc:default-servlet-handler />
+
+	<!-- ViewResolver 설정 (bean 등록) 이 설정으로 컨틑롤러의 return 값에서 prefix와 suffix 없이 
+		가능 -->
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+		<property name="order" value="1" />
+	</bean>
+	
+	<!-- MessageSource: validation 데이터 jsp에서 번역 -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+	   <property name="basenames">
+	      <list>
+		<value>messages/messages_ko</value>
+	      </list>
+	   </property>
+	</bean>
+	
+	<!-- 빈 설정을 annotation 기반으로 -->
+	<context:annotation-config />
+	<!-- scanning할 기준 패키지 -->
+	<context:component-scan base-package="com.cafe24.mysite.controller" />
+
+</beans>
