@@ -24,7 +24,7 @@ public class AuthLoginInterceptor extends HandlerInterceptorAdapter {
 		
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
-		System.out.println(email+password);
+
 		// 모든 컨테이너는 ApplicationContext를 구현하고 있음
 		// 어디서든 container에 접근하는 클래스 (servletContext -> 전역)
 		ApplicationContext ac = WebApplicationContextUtils
