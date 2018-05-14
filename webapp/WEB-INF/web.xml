@@ -36,7 +36,9 @@
 	<!-- context parameter -->
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
-		<param-value>/WEB-INF/applicationContext.xml</param-value>
+		<!-- <param-value>/WEB-INF/applicationContext.xml</param-value> -->
+		<!-- tomcat 배포  applicationContext.xml에서 설정-->
+		<param-value>classpath:applicationContext.xml</param-value>
 	</context-param>
 
 	<!-- context loader listener -->

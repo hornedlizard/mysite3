@@ -133,6 +133,7 @@
 
 	<!-- 톰캣 배포를 위한 -->
 	<profiles>
+		<!-- development는 젠킨스에서 해줌 -->
 		<profile>
 			<id>production</id>
 			<build>
@@ -141,6 +142,14 @@
 						<!-- java를 제외한 resources를 classes로 옮겨줌 -->
 						<!-- maven-resources-plugin가 필요 -->
 						<directory>${project.basedir}/src/main/resources</directory>
+						<excludes>
+							<exclude>**/*.java</exclude>
+						</excludes>
+					</resource>
+					<resource>
+						<!-- java를 제외한 resources를 classes로 옮겨줌 -->
+						<!-- maven-resources-plugin가 필요 -->
+						<directory>${project.basedir}/src/production/resources</directory>
 						<excludes>
 							<exclude>**/*.java</exclude>
 						</excludes>

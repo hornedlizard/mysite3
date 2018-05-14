@@ -37,7 +37,7 @@
 	<!-- spring-jdbc 모듈을 사용해서 spring에서 mysql 접속을 지원 -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://192.168.1.60:3306/webdb" />
+		<property name="url" value="jdbc:mysql://localhost:3306/webdb" />
 		<property name="username" value="webdb" />
 		<property name="password" value="webdb" />
 	</bean>
